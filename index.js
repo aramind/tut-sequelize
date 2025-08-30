@@ -9,12 +9,10 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
-    define: {
-      timestamps: false,
-      freezeTableName: true,
-    },
   }
 );
+
+const { DataTypes } = Sequelize;
 
 sequelize
   .authenticate()
@@ -27,26 +25,48 @@ sequelize
 
 const User = sequelize.define("user", {
   user_id: {
-    type: Sequelize.DataTypes.INTEGER,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   username: {
-    type: Sequelize.DataTypes.STRING,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   password: {
-    type: Sequelize.DataTypes.STRING,
+    type: DataTypes.STRING,
   },
   age: {
-    type: Sequelize.DataTypes.INTEGER,
+    type: DataTypes.INTEGER,
     defaultValue: 22,
+  },
+  WittCodeRocks: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
 });
 
-User.sync({ force: true })
+User.sync({ alter: true })
   .then(() => {
-    console.log("Table and model synced successfully");
+    // console.log("Table and model synced successfully");
+    const user = User.create({
+      username: "WittCode",
+      password: "123",
+      age: 25,
+      WittCodeRocks: true,
+    });
+
+    return user;
+  })
+  .then((data) => {
+    console.log("User added to DB");
+    console.log(data.toJSON());
+    data.username = "Robin";
+    return data.destroy();
+  })
+  .then((data) => {
+    console.log("User updated");
+    console.log("2nd:", data.toJSON());
   })
   .catch((error) => {
     console.log(error);
